@@ -1,0 +1,108 @@
+name: 构建并部署到 GitHub Pages
+
+on:
+  push:
+    # 默认分支叫 main 或 master 都能触发
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+
+      # 站点源码有两种放法：
+      #   1. 直接把 site/ 与 tools/ 文件夹提交进仓库（推荐）
+      #   2. 只上传一个 cac-source.zip，这里自动解压（方便只能用网页传文件的场合）
+      - name: 准备站点源码
+        run: |
+          if [ -f site/build.mjs ]; then
+            echo "仓库里已有 site/，直接使用"
+          elif [ -f cac-source.zip ]; then
+            echo "没有 site/，但找到 cac-source.zip，正在解压"
+            unzip -q cac-source.zip
+          fi
+
+          missing=""
+          for f in site/build.mjs site/site.config.mjs site/legacy.mjs \
+                   site/lib/markdown.mjs site/lib/layout.mjs site/content/index.md; do
+            [ -f "$f" ] || missing="$missing $f"
+          done
+          [ -d site/assets ] || missing="$missing site/assets/"
+
+          if [ -n "$missing" ]; then
+            echo "::error::缺少站点源码：$missing"
+            echo ""
+            echo "===== 仓库根目录 ====="
+            ls -A
+            echo ""
+            echo "===== 目录树（三层）====="
+            find . -maxdepth 3 -type d -not -path './.git*' -not -path './site/content/*' | sort
+            echo ""
+            echo "===== build.mjs / check-content.mjs 的实际位置 ====="
+            find . -maxdepth 4 \( -name 'build.mjs' -o -name 'check-content.mjs' \) -not -path './.git/*' | sort
+            echo ""
+            echo "两个选择：把 site/ 与 tools/ 文件夹正常提交上来；"
+            echo "或者上传 cac-source.zip（单文件）后重跑，本步骤会自动解压。"
+            exit 1
+          fi
+          echo "站点源码齐全 ✓"
+
+      # 项目站点的地址是 https://<用户名>.github.io/<仓库名>/，
+      # 资源与链接都要带这个前缀；用户站点（<用户名>.github.io）则在根路径。
+      - name: 计算部署路径与站点地址
+        id: deploy-info
+        run: |
+          OWNER="${{ github.repository_owner }}"
+          REPO="${{ github.event.repository.name }}"
+          if [[ "$REPO" == *.github.io ]]; then
+            echo "base=" >> "$GITHUB_OUTPUT"
+            echo "url=https://${OWNER}.github.io" >> "$GITHUB_OUTPUT"
+          else
+            echo "base=/${REPO}" >> "$GITHUB_OUTPUT"
+            echo "url=https://${OWNER}.github.io/${REPO}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: 内容自检（缺少脚本时只警告，不中断）
+        run: |
+          if [ -f tools/check-content.mjs ]; then
+            node tools/check-content.mjs
+          else
+            echo "::warning::没有找到 tools/check-content.mjs，跳过内容自检（不影响构建）"
+          fi
+
+      - name: 构建站点
+        env:
+          CAC_BASE: ${{ steps.deploy-info.outputs.base }}
+          CAC_SITE_URL: ${{ steps.deploy-info.outputs.url }}
+        run: node site/build.mjs
+
+      - uses: actions/configure-pages@v6
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5
