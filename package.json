@@ -1,0 +1,23 @@
+{
+    "name":  "cac-council",
+    "version":  "1.0.0",
+    "private":  true,
+    "type":  "module",
+    "description":  "CAC 议会 · 零依赖静态站点",
+    "scripts":  {
+                    "build":  "node site/build.mjs",
+                    "serve":  "node site/serve.mjs",
+                    "dev":  "node site/build.mjs \u0026\u0026 node site/serve.mjs",
+                    "check":  "node tools/check-content.mjs",
+                    "test":  "node test/all.mjs",
+                    "verify":  "node test/all.mjs \u0026\u0026 node tools/check-content.mjs",
+                    "check:text":  "node tools/check-text.mjs"
+                },
+    "engines":  {
+                    "node":  "\u003e=18"
+                },
+    "devDependencies":  {
+                            "pangu":  "^10.4.1",
+                            "zhlint":  "^0.8.2"
+                        }
+}
