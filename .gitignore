@@ -1,0 +1,20 @@
+# 构建产物（GitHub Actions 会在云端重新构建，不需要提交）
+dist/
+
+# 本地素材：旧站抓取结果、开发截图、上一轮实现、最初的四份源码
+_local/
+
+# 依赖与系统垃圾
+node_modules/
+.DS_Store
+Thumbs.db
+*.log
+
+# 本地游戏发行包（Windows 原生，超过 GitHub 100MB/文件 上限）
+midnight/
+
+# 第三方站点的抓取原文（仅作研究证据，版权归各站所有）
+docs/_raw/
+
+# 游戏的本地源副本：站点用的是 site/assets/games/midnight-store/
+midnight-store/
