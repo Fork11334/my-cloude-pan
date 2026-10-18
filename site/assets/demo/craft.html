@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>craft 验证页 · CAC</title>
+<script>
+/* 只有允许动效且有 rAF 时才打开开关；脚本挂了也不会白屏 */
+(function () {
+    var d = document.documentElement;
+    try {
+        if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches && window.requestAnimationFrame) {
+            d.classList.add('js');
+        }
+    } catch (e) { /* 忽略 */ }
+    setTimeout(function () {
+        var l = document.querySelector('[data-loader]');
+        if (l && l.parentNode) { l.parentNode.removeChild(l); }
+        d.classList.add('is-ready');
+    }, 2600);
+})();
+</script>
+<link rel="stylesheet" href="../css/craft.css">
+</head>
+<body>
+
+<!-- 1 loader -->
+<div class="loader" data-loader aria-hidden="true">
+    <div class="loader__box">
+        <svg class="loader__mark" viewBox="0 0 132 132" aria-hidden="true">
+            <path pathLength="1000" d="M66 4 L124 37 L124 95 L66 128 L8 95 L8 37 Z"></path>
+            <path pathLength="1000" d="M66 30 L102 51 L102 81 L66 102 L30 81 L30 51 Z"></path>
+        </svg>
+        <p class="loader__num" data-loader-num>000</p>
+    </div>
+</div>
+
+<!-- 2 首屏 -->
+<header class="hero">
+    <div class="hero__waves" data-waves aria-hidden="true">
+        <svg>
+            <path stroke="rgba(242,239,233,.55)" stroke-width="1"
+                  d="M0 380 Q 200 340 400 380 T 800 380 T 1200 380 T 1600 380"></path>
+            <path stroke="rgba(242,239,233,.32)" stroke-width="1"
+                  d="M0 420 Q 200 380 400 420 T 800 420 T 1200 420 T 1600 420"></path>
+            <path stroke="rgba(200,69,47,.45)" stroke-width="1"
+                  d="M0 470 Q 200 430 400 470 T 800 470 T 1200 470 T 1600 470"></path>
+        </svg>
+    </div>
+
+    <div class="hero__inner">
+        <p class="hero__kicker">C·A·C&ensp;/&ensp;内部资料库</p>
+        <h1 class="hero__title" data-reveal data-lines="CAC 议会">CAC 议会</h1>
+        <p class="hero__punch">控制是手段，解析是动力，共存是方向。</p>
+        <div style="display:flex;gap:34px;margin-top:36px">
+            <a class="mag" href="#about">
+                <span class="mag__stack"><span class="mag__row">从这里开始</span><span class="mag__row mag__row--ghost" aria-hidden="true">从这里开始</span></span>
+                <span class="mag__line" aria-hidden="true"></span>
+            </a>
+            <a class="mag" href="#about">
+                <span class="mag__stack"><span class="mag__row">访问校验</span><span class="mag__row mag__row--ghost" aria-hidden="true">访问校验</span></span>
+                <span class="mag__line" aria-hidden="true"></span>
+            </a>
+        </div>
+    </div>
+</header>
+
+<!-- 3 章节 -->
+<section class="sec" id="about">
+    <header class="sec__head">
+        <span class="sec__no">01</span>
+        <h2 class="sec__name">什么是 CAC</h2>
+        <span class="sec__rule" aria-hidden="true"></span>
+    </header>
+    <div class="demo-cols" data-reveal>
+        <div>
+            <p><strong>控制 (Control)</strong> —— 控制是面对未知、危险、异常的第一手段。是社会稳定的重要基石，它不单单包括物理手段，只要在不危害人类存续的情况下，控制是我们面对这个世界的第一要义。</p>
+            <p><strong>解析 (Analyze)</strong> —— 智慧的动力。我们探究超自然的本质，将未知转化为已知，甚至转化为可用的技术。</p>
+            <p><strong>共存 (Coexist)</strong> —— 共同的愿景。在平衡中寻找人类与异常共处的可能，只有当异常融入自然，融入社会才会带来人类的进步。</p>
+            <p class="demo-note">CAC 内部论坛仅限授权人员访问。所有数据均受模因加密保护。</p>
+        </div>
+        <div>
+            <p>这一页只用来验证工艺件：loader 的线描与真进度、首屏 SVG 波浪场（弹簧 + 指针隆起）、标题行遮罩、磁性按钮与自定义光标、颗粒质感、页面过渡。</p>
+            <p>它不引用旧样式表，也不写在正式页面里——确认手感之后，再整层换上去。</p>
+        </div>
+    </div>
+</section>
+
+<section class="sec" id="departments">
+    <header class="sec__head">
+        <span class="sec__no">02</span>
+        <h2 class="sec__name">部门</h2>
+        <span class="sec__rule" aria-hidden="true"></span>
+    </header>
+
+    <div class="seg" data-seg role="tablist" aria-label="部门切换">
+        <span class="seg__ink" aria-hidden="true"></span>
+        <button class="seg__btn is-on" type="button" role="tab" aria-selected="true">控制</button>
+        <button class="seg__btn" type="button" role="tab" aria-selected="false">解析</button>
+        <button class="seg__btn" type="button" role="tab" aria-selected="false">共存</button>
+    </div>
+
+    <div class="panels">
+        <article class="panel is-on is-in" data-panel role="tabpanel" aria-hidden="false">
+            <h3 class="panel__piece panel__name" style="--i:0">控制部</h3>
+            <p class="panel__piece panel__motto" style="--i:1">先控住，再谈别的。</p>
+            <p class="panel__piece panel__desc" style="--i:2">压制并归档异常项目，留下行动记录与武装力量编制。控制部相信秩序是谈出来的前提，所以它先到场。</p>
+            <div class="panel__marks panel__piece" style="--i:3"><span class="panel__mark"></span><span class="panel__mark"></span><span class="panel__mark"></span></div>
+        </article>
+        <article class="panel" data-panel role="tabpanel" aria-hidden="true">
+            <h3 class="panel__piece panel__name" style="--i:0">解析部</h3>
+            <p class="panel__piece panel__motto" style="--i:1">把现象变成可以复述的话。</p>
+            <p class="panel__piece panel__desc" style="--i:2">拆开现象、找出可以重复的部分，产出研究报告与技术草案。不判断价值，只负责让结论经得起复述。</p>
+            <div class="panel__marks panel__piece" style="--i:3"><span class="panel__mark"></span><span class="panel__mark"></span><span class="panel__mark"></span></div>
+        </article>
+        <article class="panel" data-panel role="tabpanel" aria-hidden="true">
+            <h3 class="panel__piece panel__name" style="--i:0">共存部</h3>
+            <p class="panel__piece panel__motto" style="--i:1">划一条双方都承受得起的线。</p>
+            <p class="panel__piece panel__desc" style="--i:2">为可沟通的异常建立社会化规程，出具伦理与风险评估。处理最难的那部分：不是消灭，而是相处。</p>
+            <div class="panel__marks panel__piece" style="--i:3"><span class="panel__mark"></span><span class="panel__mark"></span><span class="panel__mark"></span></div>
+        </article>
+    </div>
+</section>
+
+<script src="../js/craft.js"></script>
+</body>
+</html>

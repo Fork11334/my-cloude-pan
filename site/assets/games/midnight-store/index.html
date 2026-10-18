@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#05080a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%2305080a'/%3E%3Crect x='12' y='22' width='40' height='22' fill='%231d2a1b' stroke='%239fe8bc' stroke-width='2'/%3E%3Crect x='26' y='28' width='12' height='10' fill='%23b8402f'/%3E%3C/svg%3E">
+<title>长夜便利店 · NIGHTLONG MART</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="app">
+  <canvas id="gl"></canvas>
+
+  <!-- ======== FX ======== -->
+  <div id="fx" aria-hidden="true">
+    <div class="fx-grain" id="fxGrain"></div>
+    <div class="fx-vignette"></div>
+    <div class="fx-scan"></div>
+    <div class="fx-flash" id="fxFlash"></div>
+    <div class="fx-fear" id="fxFear"></div>
+  </div>
+
+  <!-- ======== 加载 ======== -->
+  <div id="boot" class="screen">
+    <div class="boot-box">
+      <div class="boot-mark">长夜</div>
+      <div class="boot-title">长夜便利店</div>
+      <div class="boot-sub">NIGHTLONG MART · 24H</div>
+      <div class="boot-bar"><i id="bootBar"></i></div>
+      <div class="boot-status" id="bootStatus">正在生成长夜…</div>
+      <div class="boot-warn">本作含闪烁画面、突然的声响与心理压迫内容。<br>建议佩戴耳机，在低光环境下游玩。</div>
+    </div>
+  </div>
+
+  <!-- ======== 标题 ======== -->
+  <div id="title" class="screen hidden">
+    <div class="title-shade"></div>
+    <div class="title-top">
+      <div class="title-kicker">A PSYCHOLOGICAL HORROR NIGHT SHIFT</div>
+      <div class="title-hour" id="titleHour">23:59</div>
+    </div>
+    <div class="title-main">
+      <h1 class="game-logo"><span>长</span><span>夜</span><span>便</span><span>利</span><span>店</span></h1>
+      <div class="game-logo-en">NIGHTLONG&nbsp;&nbsp;MART</div>
+      <p class="game-tagline">凌晨三点以后，客人会变多。<br>他们大多很有礼貌。</p>
+      <div class="title-menu" id="titleMenu">
+        <button class="menu-btn" data-act="new"><b>01</b><span>开始新班</span><em>NEW SHIFT</em></button>
+        <button class="menu-btn" data-act="continue"><b>02</b><span>继续值班</span><em>CONTINUE</em></button>
+        <button class="menu-btn" data-act="nights"><b>03</b><span>夜班记录</span><em>SHIFT LOG</em></button>
+        <button class="menu-btn" data-act="settings"><b>04</b><span>设置</span><em>OPTIONS</em></button>
+        <button class="menu-btn" data-act="credits"><b>05</b><span>制作与致谢</span><em>CREDITS</em></button>
+      </div>
+      <div class="title-foot">
+        <span id="saveInfo">尚无值班记录</span>
+        <span class="dot">·</span>
+        <span>建议全屏 · 耳机</span>
+        <span class="dot">·</span>
+        <span>v1.0</span>
+      </div>
+    </div>
+    <div class="title-side">
+      <div class="side-line"></div>
+      <div class="side-text">深夜营业中<br>请勿与镜中的自己对视过久</div>
+    </div>
+  </div>
+
+  <!-- ======== HUD ======== -->
+  <div id="hud" class="hidden">
+    <div class="hud-top">
+      <div class="hud-shift">
+        <div class="hud-night" id="hudNight">第一夜 · 试用期</div>
+        <div class="hud-clock" id="hudClock">22:00</div>
+        <div class="hud-target">距天亮 <span id="hudRemain">06:00</span></div>
+      </div>
+      <div class="hud-objective" id="hudObjective"><i></i><span>熟悉柜台</span></div>
+      <div class="hud-right">
+        <div class="hud-bullets" id="hudBullets"></div>
+        <div class="hud-keys">
+          <span><b>Tab</b> 手册</span><span><b>G</b> 枪</span><span><b>Q</b> 观察</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="reticle" class="reticle"><i></i><i></i><i></i><i></i><b></b></div>
+    <div id="interact" class="interact hidden"><b>E</b><span>交互</span><i></i></div>
+    <div id="holdRing" class="hold-ring hidden"><svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="16"></circle><circle id="holdArc" cx="18" cy="18" r="16"></circle></svg><span>按住 E</span></div>
+
+    <div class="hud-bottom">
+      <div class="hud-hint" id="hudHint">WASD 移动 · 鼠标环视 · E 交互</div>
+      <div class="hud-mood" id="hudMood"><span class="mood-dot"></span><span id="moodText">安静</span></div>
+    </div>
+
+    <div id="subtitle" class="subtitle hidden">
+      <div class="sub-who" id="subWho">电台</div>
+      <div class="sub-text" id="subText"></div>
+    </div>
+
+    <div id="radioBox" class="radio-box hidden">
+      <div class="radio-head"><span class="radio-dot"></span>FM 96.7 · 长夜之声</div>
+      <div class="radio-text" id="radioText"></div>
+    </div>
+
+    <div id="observePanel" class="observe-panel hidden">
+      <div class="obs-head"><span>观察记录</span><b id="obsName">——</b></div>
+      <div class="obs-list" id="obsList"></div>
+      <div class="obs-foot">按住 Q 继续观察 · 松开结束</div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+    <div id="interactLabel" class="interact-label hidden"></div>
+  </div>
+
+  <!-- ======== 对话 ======== -->
+  <div id="dialogue" class="dialogue hidden">
+    <div class="dlg-inner">
+      <div class="dlg-head">
+        <div class="dlg-avatar" id="dlgAvatar"></div>
+        <div class="dlg-who">
+          <div class="dlg-name" id="dlgName">顾客</div>
+          <div class="dlg-sub" id="dlgSub">站在柜台前</div>
+        </div>
+        <div class="dlg-clock" id="dlgClock">22:00</div>
+      </div>
+      <div class="dlg-text" id="dlgText"></div>
+      <div class="dlg-options" id="dlgOptions"></div>
+      <div class="dlg-hint" id="dlgHint">空格 继续</div>
+    </div>
+  </div>
+
+  <!-- ======== 证件 ======== -->
+  <div id="idcard" class="idcard hidden">
+    <div class="id-back"></div>
+    <div class="id-wrap">
+      <div class="id-card">
+        <div class="id-top"><span>中华人民共和国</span><b>居民身份证</b><em>ID CARD</em></div>
+        <div class="id-body">
+          <div class="id-photo"><img id="idPhoto" alt="证件照"><i>照片</i></div>
+          <div class="id-fields">
+            <div><label>姓　名</label><b id="idName">——</b></div>
+            <div><label>性　别</label><b id="idSex">——</b></div>
+            <div><label>出生</label><b id="idDob">——</b></div>
+            <div><label>住址</label><b id="idAddr">——</b></div>
+            <div class="id-no"><label>公民身份号码</label><b id="idNo">——</b></div>
+          </div>
+        </div>
+        <div class="id-foot"><span>签发机关：长夜市公安局</span><span id="idValid">有效期限 2016.03 — 2036.03</span></div>
+        <div class="id-stamp" id="idStamp">已核验</div>
+      </div>
+      <div class="id-note" id="idNote">对着光看了看，塑料膜里没有气泡。</div>
+      <div class="id-close">E 归还证件</div>
+    </div>
+  </div>
+
+  <!-- ======== 手册 ======== -->
+  <div id="journal" class="journal hidden">
+    <div class="jr-book">
+      <div class="jr-side">
+        <div class="jr-title">长夜便利店<br><span>值班手册</span></div>
+        <div class="jr-tabs" id="jrTabs">
+          <button class="active" data-tab="rules">夜班守则</button>
+          <button data-tab="notes">拾得便签</button>
+          <button data-tab="log">值班日志</button>
+          <button data-tab="controls">操作说明</button>
+        </div>
+        <div class="jr-foot">每一次交接<br>都有人留下名字</div>
+      </div>
+      <div class="jr-page" id="jrPage"></div>
+      <button class="jr-close" id="jrClose">Tab / Esc 合上</button>
+    </div>
+  </div>
+
+  <!-- ======== 全屏纸面阅读 ======== -->
+  <div id="paper" class="paper hidden">
+    <div class="paper-sheet">
+      <div class="paper-text" id="paperText"></div>
+      <div class="paper-sign" id="paperSign"></div>
+      <div class="paper-close">Space / E 放下</div>
+    </div>
+  </div>
+
+  <!-- ======== 设置 ======== -->
+  <div id="settings" class="modal hidden">
+    <div class="modal-box">
+      <div class="modal-head"><h2>设置</h2><button class="x" id="setClose">×</button></div>
+      <div class="set-row">
+        <label>画质</label>
+        <div class="seg" id="setQuality">
+          <button data-v="low">低</button><button data-v="medium">中</button><button data-v="high">高</button>
+        </div>
+      </div>
+      <div class="set-row"><label>鼠标灵敏度</label><input type="range" id="setSens" min="0.3" max="2.2" step="0.05"><span id="setSensVal">1.00</span></div>
+      <div class="set-row"><label>音量</label><input type="range" id="setVol" min="0" max="1" step="0.01"><span id="setVolVal">85%</span></div>
+      <div class="set-row"><label>中文语音</label><div class="seg" id="setVoice"><button data-v="on">开</button><button data-v="off">关</button></div></div>
+      <div class="set-row"><label>胶片颗粒</label><div class="seg" id="setGrain"><button data-v="on">开</button><button data-v="off">关</button></div></div>
+      <div class="set-row"><label>镜头晃动</label><div class="seg" id="setShake"><button data-v="on">开</button><button data-v="off">关</button></div></div>
+      <div class="set-row"><label>准星与提示</label><div class="seg" id="setHints"><button data-v="on">显示</button><button data-v="off">隐藏</button></div></div>
+      <div class="set-row set-fps"><label>帧率</label><span id="setFps">——</span><button class="mini" id="setFull">全屏</button></div>
+      <div class="set-foot">
+        <button class="mini danger" id="setReset">清除全部记录</button>
+        <span>画质改动将在下一夜生效</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======== 制作 ======== -->
+  <div id="credits" class="modal hidden">
+    <div class="modal-box credits-box">
+      <div class="modal-head"><h2>制作与致谢</h2><button class="x" id="credClose">×</button></div>
+      <div class="cred-body">
+        <p class="cred-lead">《长夜便利店》是一部独立的 HTML 心理恐怖短篇。<br>它没有库存，也没有人来接班。</p>
+        <h3>素材</h3>
+        <p>3D 人头扫描：Lee Perry-Smith，CC BY 3.0，via three.js examples（triplegangers.com / ir-ltd.net）。<br>其余场景、贴图、音效均由代码在本地实时生成。</p>
+        <h3>引擎</h3>
+        <p>three.js r140 · 纯原生 HTML / CSS / JavaScript · WebAudio 程序化声音</p>
+        <h3>玩法</h3>
+        <p>每夜二十一点到凌晨四点。服务客人，核对口令与证件，观察那些不属于人的细节。<br>枪在柜台下面，只有六发。不要打错人。</p>
+        <p class="cred-small">本作仅作个人游玩使用，请勿用于商业用途。<br>如果听见门铃，先看看监控。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======== 夜班记录 ======== -->
+  <div id="nights" class="modal hidden">
+    <div class="modal-box nights-box">
+      <div class="modal-head"><h2>夜班记录</h2><button class="x" id="nightsClose">×</button></div>
+      <div class="nights-list" id="nightsList"></div>
+      <div class="nights-foot"><span id="nightsStats">完成 0 夜 · 结局 0/3</span><button class="mini" id="nightsBack">返回</button></div>
+    </div>
+  </div>
+
+  <!-- ======== 夜前简报 ======== -->
+  <div id="briefing" class="briefing hidden">
+    <div class="brief-inner">
+      <div class="brief-night" id="briefNight">第一夜</div>
+      <h2 id="briefTitle">试用期</h2>
+      <div class="brief-quote" id="briefQuote"></div>
+      <ul class="brief-list" id="briefList"></ul>
+      <div class="brief-sign" id="briefSign">长夜便利店 · 交接记录</div>
+      <button class="brief-go" id="briefGo">开始值班</button>
+      <div class="brief-tip">按 Enter 或点击开始。门已经锁好了。</div>
+    </div>
+  </div>
+
+  <!-- ======== 结算 ======== -->
+  <div id="nightEnd" class="night-end hidden">
+    <div class="ne-inner">
+      <div class="ne-kicker" id="neKicker">04:00</div>
+      <h2 id="neTitle">天亮了</h2>
+      <div class="ne-story" id="neStory"></div>
+      <div class="ne-stats" id="neStats"></div>
+      <button class="ne-go" id="neGo">继续</button>
+    </div>
+  </div>
+
+  <!-- ======== 死亡 / 失败 ======== -->
+  <div id="dead" class="dead hidden">
+    <div class="dead-glitch" id="deadGlitch">不要收钱。<br>不要转身。</div>
+    <div class="dead-sub" id="deadSub">你听见自己的声音从柜台下面传来。</div>
+    <div class="dead-actions">
+      <button class="btn" id="deadRetry">重值这一夜</button>
+      <button class="btn ghost" id="deadTitle">回到标题</button>
+    </div>
+    <div class="dead-tip">失败不会写入记录。</div>
+  </div>
+
+  <!-- ======== 结局 ======== -->
+  <div id="ending" class="ending hidden">
+    <div class="end-inner">
+      <div class="end-kicker" id="endKicker">ENDING</div>
+      <h1 id="endTitle">天快亮了</h1>
+      <div class="end-text" id="endText"></div>
+      <div class="end-foot"><span id="endStats"></span><button class="btn" id="endBack">回到标题</button></div>
+    </div>
+  </div>
+
+  <!-- ======== 暂停 ======== -->
+  <div id="pause" class="module hidden">
+    <div class="pause-box">
+      <h2>值班中</h2>
+      <p>“柜台后面不许没有人。”</p>
+      <button class="btn" id="pauseResume">继续值班</button>
+      <button class="btn ghost" id="pauseSettings">设置</button>
+      <button class="btn ghost" id="pauseTitle">返回标题（放弃本夜）</button>
+      <div class="pause-tip">Esc 返回游戏 · Tab 打开手册</div>
+    </div>
+  </div>
+
+  <!-- ======== 开场文字 ======== -->
+  <div id="intro" class="intro hidden">
+    <div class="intro-text" id="introText"></div>
+    <div class="intro-skip">Space 跳过</div>
+  </div>
+
+  <!-- ======== 监控画面 ======== -->
+  <div id="cctv" class="cctv hidden">
+    <div class="cctv-tint"></div>
+    <div class="cctv-scan"></div>
+    <div class="cctv-vig"></div>
+    <div class="cctv-head">
+      <span>CAM 01 · 店内</span>
+      <b>● REC</b>
+      <em id="cctvTime">00:00</em>
+    </div>
+    <div class="cctv-corner tl"></div><div class="cctv-corner tr"></div>
+    <div class="cctv-corner bl"></div><div class="cctv-corner br"></div>
+    <div class="cctv-tip">E / Esc 关闭监控</div>
+  </div>
+
+  <!-- ======== 屏幕淡入淡出 ======== -->
+  <div id="fade" class="fade"></div>
+  <div id="mobileWarn" class="mobile-warn hidden">
+    <div>请使用桌面浏览器，并点击画面以锁定鼠标。<br>小屏幕上的便利店，不欢迎客人。</div>
+  </div>
+</div>
+
+<script src="vendor/three.min.js"></script>
+<script src="vendor/GLTFLoader.js"></script>
+<script src="js/assets_embed.js"></script>
+<script src="js/util.js"></script>
+<script src="js/textures.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/world.js"></script>
+<script src="js/customer.js"></script>
+<script src="js/player.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/story.js"></script>
+<script src="js/game.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,754 @@
+/* ==========================================================================
+   CAC 动效层（motion.css�?   设计来源：Aceternity UI（spotlight / aurora / tracing beam / 3D card）�?   ReactBits（SplitText / BlurText / GradientText / CountUp / Magnet）�?   uiverse.io（按钮填充、卡片抬升、加载器）、anime.js v4（stagger + spring）�?   wodniack.dev（页面转场、光标氛围）、motionsites.ai（走马灯 / 粘性分组标题）�?   全部用原�?CSS/JS 重写，没有引入任何库�?
+   原则�?   1. 默认状态是"最终状�?，不依赖 JS 也能看全内容�?      只有 <html class="js"> 时才会出�?待入�?的隐藏态�?   2. 只动 transform / opacity / filter / clip-path，避免触发布局�?   3. 所有动画都�?prefers-reduced-motion: reduce 下关闭�?   ========================================================================== */
+
+/* ── 1 令牌 ────────────────────────────────────────────────────────────── */
+:root {
+    --ease-out: cubic-bezier(.22, 1, .36, 1);
+    --ease-spring: cubic-bezier(.34, 1.4, .64, 1);
+    --dur-fast: .18s;
+    --dur: .32s;
+    --dur-slow: .7s;
+
+    --glow: 0 0 42px rgba(79, 163, 201, .22);
+    --sheen: linear-gradient(115deg, transparent 18%, rgba(255, 255, 255, .16) 48%, transparent 78%);
+    --atmos-1: 79, 163, 201;
+    --atmos-2: 163, 119, 207;
+    --atmos-3: 111, 207, 151;
+}
+
+/* 跨文档页面转场（Chromium 系原生支持，其他浏览器自动忽略） */
+@view-transition { navigation: auto; }
+::view-transition-old(root) { animation: vtOut .16s ease both; }
+::view-transition-new(root) { animation: vtIn .34s var(--ease-out) both; }
+@keyframes vtOut { to { opacity: 0; transform: scale(.995); } }
+@keyframes vtIn { from { opacity: 0; transform: translateY(6px); } }
+
+/* ── 2 入场动效 ────────────────────────────────────────────────────────── */
+html.js [data-reveal] {
+    opacity: 0;
+    transform: translateY(16px);
+}
+html.js [data-reveal="blur"] { filter: blur(9px); }
+html.js [data-reveal="fade"] { transform: none; }
+html.js [data-reveal="left"] { transform: translateX(-18px); }
+html.js [data-reveal="scale"] { transform: scale(.96); }
+
+html.js [data-reveal].is-in {
+    opacity: 1;
+    filter: none;
+    transform: none;
+    transition:
+        opacity var(--dur-slow) var(--ease-out) calc(var(--i, 0) * 55ms),
+        transform var(--dur-slow) var(--ease-out) calc(var(--i, 0) * 55ms),
+        filter var(--dur-slow) var(--ease-out) calc(var(--i, 0) * 55ms);
+}
+
+/* 标题逐字入场（SplitText 的原生写法） */
+html.js .split .split__ch {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(.42em) rotate(2deg);
+    filter: blur(6px);
+}
+html.js .split.is-in .split__ch {
+    opacity: 1;
+    filter: none;
+    transform: none;
+    transition:
+        opacity .5s var(--ease-out) calc(var(--ci, 0) * 42ms),
+        transform .62s var(--ease-spring) calc(var(--ci, 0) * 42ms),
+        filter .5s var(--ease-out) calc(var(--ci, 0) * 42ms);
+}
+/* 空格与标点不参与动画，避免逐字抖动 */
+.split__ch--space { width: .28em; }
+
+/* 渐变呼吸字（GradientText�?*/
+.grad-text {
+    background: linear-gradient(100deg, var(--control), var(--analyze) 46%, var(--coexist) 92%);
+    background-size: 220% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: gradShift 9s ease-in-out infinite alternate;
+}
+@keyframes gradShift { from { background-position: 0% 50%; } to { background-position: 100% 50%; } }
+
+/* 横向溢出不能靠给 html/body �?overflow 来解决：
+   · body 上加 overflow（hidden/clip）会被浏览器传播到视�?�?整页滚不�?   · html 上加 overflow-x: clip 也不行：规范�?visible �?clip 组合会把
+     另一轴也算成 clip �?纵向滚动一起没�?   所以装饰层的超宽必须由它自己的容器裁掉（下�?.atmos / .marquee 都自带裁切）�?*/
+
+/* ── 3 首页氛围�?──────────────────────────────────────────────────────── */
+.layout-home { position: relative; }
+
+.atmos {
+    position: absolute;
+    inset: 0 0 auto;
+    height: min(960px, 120vh);
+    z-index: -1;
+    pointer-events: none;
+    overflow: clip;
+}
+
+/* 顶部地平线辉光：把视线压到标题上 */
+.atmos__glow {
+    position: absolute;
+    left: 50%; top: -14%;
+    width: 132%; height: 62%;
+    transform: translateX(-50%);
+    background: radial-gradient(58% 62% at 50% 42%,
+        rgba(var(--atmos-1), .34), rgba(var(--atmos-2), .16) 46%, transparent 72%);
+    filter: blur(26px);
+}
+
+/* 极光：两层反向旋转，制造缓慢流�?*/
+.atmos__aurora {
+    position: absolute;
+    left: 50%; top: -34%;
+    width: 118vmax; height: 118vmax;
+    margin: -59vmax 0 0 -59vmax;
+    background: conic-gradient(from 0deg,
+        rgba(var(--atmos-1), 0) 0deg,
+        rgba(var(--atmos-1), .34) 58deg,
+        rgba(var(--atmos-2), .28) 138deg,
+        rgba(var(--atmos-1), 0) 208deg,
+        rgba(var(--atmos-3), .22) 298deg,
+        rgba(var(--atmos-1), 0) 360deg);
+    filter: blur(58px) saturate(125%);
+    animation: auroraSpin 38s linear infinite;
+    opacity: .85;
+}
+.atmos__aurora--rev {
+    animation-duration: 52s;
+    animation-direction: reverse;
+    filter: blur(78px) saturate(110%);
+    opacity: .55;
+}
+@keyframes auroraSpin { to { transform: rotate(360deg); } }
+
+/* 光束（Aceternity Background Beams 的轻量版�?*/
+.atmos__beam {
+    position: absolute;
+    top: -46%;
+    width: 1px; height: 82%;
+    background: linear-gradient(180deg, transparent, rgba(var(--atmos-1), .85), transparent);
+    box-shadow: 0 0 12px rgba(var(--atmos-1), .45);
+    transform: rotate(16deg);
+    opacity: 0;
+    animation: beamFall 9s linear infinite;
+}
+.atmos__beam--1 { left: 14%; animation-delay: .4s; }
+.atmos__beam--2 { left: 36%; animation-delay: 2.8s; height: 64%; }
+.atmos__beam--3 { left: 63%; animation-delay: 5.2s; height: 92%; }
+.atmos__beam--4 { left: 84%; animation-delay: 7.4s; height: 58%; }
+@keyframes beamFall {
+    0% { opacity: 0; transform: translateY(-34%) rotate(16deg); }
+    16% { opacity: 1; }
+    100% { opacity: 0; transform: translateY(160%) rotate(16deg); }
+}
+
+/* 鼠标跟随的聚�?*/
+.atmos__spot {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(620px circle at var(--px, 50%) var(--py, 14%),
+        rgba(var(--atmos-1), .22), transparent 64%);
+}
+
+/* 细网格：只在顶部有，往下淡�?*/
+.atmos__grid {
+    position: absolute; inset: 0;
+    background-image:
+        linear-gradient(rgba(255, 255, 255, .045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, .045) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(720px 460px at 50% 0%, #000, transparent 76%);
+    -webkit-mask-image: radial-gradient(720px 460px at 50% 0%, #000, transparent 76%);
+}
+
+/* 首页统计�?*/
+.hero-stats {
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 12px 30px;
+    margin: 28px 0 0; padding: 0; list-style: none;
+}
+.hero-stat { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.hero-stat b {
+    font-family: var(--mono); font-size: 1.55rem; line-height: 1;
+    color: var(--white); letter-spacing: 1px;
+}
+.hero-stat i { font-style: normal; color: var(--text-3); font-size: .74rem; letter-spacing: 1.5px; }
+.hero-stat + .hero-stat { padding-left: 30px; border-left: 1px solid var(--line-soft); }
+
+/* 滚动提示 */
+.scroll-cue { display: flex; justify-content: center; margin: 34px 0 0; }
+.scroll-cue span {
+    width: 1px; height: 48px;
+    background: linear-gradient(180deg, transparent, var(--control), transparent);
+    animation: cueSlide 2.8s ease-in-out infinite;
+}
+@keyframes cueSlide {
+    0% { transform: translateY(-42%); opacity: 0; }
+    42% { opacity: 1; }
+    100% { transform: translateY(42%); opacity: 0; }
+}
+
+/* 窄屏：统计条改成 2×2，避�?3+1 的尴尬换�?*/
+@media (max-width: 640px) {
+    .hero-stats {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px 10px;
+        max-width: 320px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .hero-stat + .hero-stat { padding-left: 0; border-left: 0; }
+    .scroll-cue { margin-top: 24px; }
+}
+
+/* 全局噪点覆盖层（静态纹理，不参与重绘） */
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: .04;
+    background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ── 4 卡片：聚�?+ 倾斜 + 描边流光 ────────────────────────────────────── */
+.spot-host { position: relative; }
+.spot-host::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity var(--dur) ease;
+    background: radial-gradient(260px circle at var(--mx, 50%) var(--my, 0%),
+        rgba(var(--atmos-1), .16), transparent 62%);
+}
+.spot-host:hover::before,
+.spot-host:focus-within::before { opacity: 1; }
+
+/* 描边流光：hover 时有一条高光沿边框走一�?*/
+.border-sheen { position: relative; }
+.border-sheen::after {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(120deg, transparent 20%, rgba(var(--atmos-1), .8) 45%, rgba(var(--atmos-2), .7) 55%, transparent 80%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity var(--dur) ease;
+    pointer-events: none;
+}
+.border-sheen:hover::after { opacity: 1; }
+
+.tilt {
+    transform-style: preserve-3d;
+    transition: transform var(--dur) var(--ease-out), box-shadow var(--dur) ease;
+}
+.tilt.is-tilting { transition: transform .08s linear, box-shadow var(--dur) ease; }
+.tilt__lift { transform: translateZ(26px); }
+
+/* 卡片入场 + 抬升统一缓动 */
+a.card, .card, .cac-entry, .dept-card {
+    transition: transform var(--dur) var(--ease-out), border-color var(--dur) ease, box-shadow var(--dur) ease, background var(--dur) ease;
+}
+a.card:hover, .cac-entry:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 38px rgba(0, 0, 0, .5), var(--glow);
+}
+
+/* ── 5 按钮与链接微交互 ────────────────────────────────────────────────── */
+.sweep { position: relative; overflow: hidden; }
+.sweep::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--sheen);
+    transform: translateX(-130%);
+    transition: transform .72s var(--ease-out);
+    pointer-events: none;
+}
+.sweep:hover::after { transform: translateX(130%); }
+
+/* uiverse 式填充：伪元素从左侧铺满，键盘聚焦（:focus-visible）同样有反馈 */
+.cac-btn, .pager__item, .cac-search__bar { position: relative; isolation: isolate; overflow: hidden; }
+.cac-btn::before,
+.pager__item::before,
+.cac-search__bar::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: currentColor;
+    opacity: .12;
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform .42s var(--ease-out);
+}
+.cac-btn:hover::before, .cac-btn:focus-visible::before,
+.pager__item:hover::before, .pager__item:focus-visible::before,
+.cac-search__bar:hover::before, .cac-search__bar:focus-visible::before { transform: scaleX(1); }
+
+/* 首页三色横条：入场时从左画出�?*/
+html.js .hero-bars span {
+    transform: scaleX(0);
+    transform-origin: left center;
+    animation: barDraw .8s var(--ease-out) forwards;
+}
+html.js .hero-bars span:nth-child(2) { animation-delay: .12s; }
+html.js .hero-bars span:nth-child(3) { animation-delay: .24s; }
+@keyframes barDraw { to { transform: scaleX(1); } }
+
+/* 滚动驱动（渐进增强：Chrome / Safari 支持，Firefox 忽略，不影响使用�?*/
+@supports (animation-timeline: scroll()) {
+    .layout-home .page-head {
+        animation: heroExit linear both;
+        animation-timeline: scroll(root block);
+        animation-range: 0 58vh;
+    }
+    @keyframes heroExit {
+        to { opacity: .32; transform: translateY(-20px) scale(.985); filter: blur(2px); }
+    }
+}
+
+/* 品牌字的流光（ShinyText�?   注意：这里不能用 currentColor —�?同一元素上已经是 color: transparent�?   currentColor 会解析成透明，字会整片消失。必须写明确的颜色�?*/
+.usermenu__mark {
+    background: linear-gradient(100deg,
+        var(--white) 32%, var(--control) 46%, #ffffff 52%, var(--control) 58%, var(--white) 70%);
+    background-size: 260% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: shinySweep 7s linear infinite;
+}
+@keyframes shinySweep {
+    0% { background-position: 160% 50%; }
+    60%, 100% { background-position: -60% 50%; }
+}
+
+/* 点击火花（ClickSpark）：在指针位置炸出几道短�?*/
+.spark {
+    position: fixed;
+    width: 1px; height: 10px;
+    background: linear-gradient(180deg, var(--control), transparent);
+    pointer-events: none;
+    z-index: 70;
+    transform-origin: 50% 0;
+    animation: sparkOut .42s var(--ease-out) forwards;
+}
+@keyframes sparkOut {
+    from { opacity: 1; transform: rotate(var(--a, 0deg)) translateY(0) scaleY(1); }
+    to { opacity: 0; transform: rotate(var(--a, 0deg)) translateY(16px) scaleY(.3); }
+}
+[data-magnetic] {
+    transform: translate3d(var(--mag-x, 0), var(--mag-y, 0), 0);
+    transition: transform var(--dur) var(--ease-spring);
+}
+
+/* 导航滑动指示�?*/
+.nav { position: relative; }
+.nav__ink {
+    position: absolute;
+    left: 0; top: 0;
+    height: 30px; width: 0;
+    border-radius: 999px;
+    background: rgba(var(--atmos-1), .12);
+    border: 1px solid rgba(var(--atmos-1), .38);
+    transform: translate3d(var(--ink-x, 0), var(--ink-y, 0), 0);
+    transition: transform .34s var(--ease-out), width .34s var(--ease-out), opacity .2s ease;
+    pointer-events: none;
+    opacity: 0;
+    z-index: 0;
+}
+.nav__ink.is-on { opacity: 1; }
+.nav a, .nav__search { position: relative; z-index: 1; }
+
+/* 正文链接的下划线扫过 */
+.prose a:not(.anchor) {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 0% 1px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    transition: background-size var(--dur) var(--ease-out), color var(--dur) ease;
+    text-decoration: none;
+}
+.prose a:not(.anchor):hover { background-size: 100% 1px; }
+
+/* ── 6 滚动驱动 ────────────────────────────────────────────────────────── */
+/* 文章阅读光束（Tracing Beam）：左栏一条竖线，随阅读进度点�?*/
+.read-rail {
+    position: absolute;
+    left: -26px; top: 4px;
+    width: 2px;
+    height: 100%;
+    background: var(--line-soft);
+    border-radius: 2px;
+    display: none;
+}
+.read-rail__fill {
+    position: absolute;
+    left: 0; top: 0;
+    width: 100%;
+    height: calc(var(--read, 0) * 100%);
+    background: linear-gradient(180deg, var(--control), var(--analyze));
+    border-radius: 2px;
+    box-shadow: 0 0 12px rgba(var(--atmos-1), .55);
+    transition: height .12s linear;
+}
+@media (min-width: 1281px) { .read-rail { display: block; } }
+
+/* 分组标题吸顶（motionsites.ai 常见�?sticky 分组�?*/
+.main { counter-reset: sec; }
+.group-block__title {
+    position: sticky;
+    top: 74px;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    padding: 8px 0 8px 12px;
+    background: linear-gradient(90deg, rgba(var(--atmos-1), .1), transparent 62%);
+    backdrop-filter: blur(6px);
+}
+.group-block__title::before {
+    counter-increment: sec;
+    content: counter(sec, decimal-leading-zero);
+    margin-right: 10px;
+    color: var(--text-3);
+    font-family: var(--mono);
+    font-size: .68em;
+    letter-spacing: 1px;
+}
+.group-block__title::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    margin-left: 14px;
+    background: linear-gradient(90deg, var(--line), transparent);
+}
+
+/* 卡片右上角的箭头，hover 时滑�?*/
+.card__title::after {
+    content: "�?;
+    margin-left: 8px;
+    color: var(--control);
+    font-size: .92em;
+    opacity: 0;
+    transform: translate(-5px, 4px);
+    transition: opacity var(--dur) ease, transform var(--dur) var(--ease-out);
+}
+a.card:hover .card__title::after,
+a.card:focus-visible .card__title::after { opacity: 1; transform: none; }
+
+/* 顶部进度条加一点辉�?*/
+.progress span { box-shadow: 0 0 12px rgba(var(--atmos-1), .8); }
+
+/* 侧栏当前项的小脉�?*/
+.sidebar__list a.is-current::after {
+    content: "";
+    position: absolute;
+    right: 10px;
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--control);
+    animation: pulseDot 2.4s ease-in-out infinite;
+}
+.sidebar__list a { position: relative; }
+@keyframes pulseDot {
+    0%, 100% { opacity: .35; transform: scale(.8); }
+    50% { opacity: 1; transform: scale(1.25); }
+}
+
+/* 目录当前项的高亮�?*/
+.toc__list a.is-active {
+    position: relative;
+    padding-left: 10px;
+}
+.toc__list a.is-active::before {
+    content: "";
+    position: absolute;
+    left: 0; top: .42em;
+    width: 3px; height: 1em;
+    border-radius: 3px;
+    background: var(--control);
+}
+
+/* ── 7 走马�?──────────────────────────────────────────────────────────── */
+.marquee {
+    overflow: hidden;
+    mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+    border-top: 1px solid var(--line-soft);
+    border-bottom: 1px solid var(--line-soft);
+    padding: 12px 0;
+}
+.marquee__track {
+    display: flex;
+    gap: 2.4rem;
+    width: max-content;
+    animation: marquee 32s linear infinite;
+}
+.marquee:hover .marquee__track { animation-play-state: paused; }
+.marquee__item {
+    color: var(--text-3);
+    font-family: var(--mono);
+    font-size: .82rem;
+    letter-spacing: 3px;
+    white-space: nowrap;
+}
+.marquee__item b { color: var(--control); font-weight: 500; }
+@keyframes marquee { to { transform: translateX(-50%); } }
+
+/* ── 8 搜索面板与结�?──────────────────────────────────────────────────── */
+.search__panel {
+    transform: translateY(-10px) scale(.97);
+    opacity: 0;
+    transition: transform .3s var(--ease-spring), opacity .2s ease;
+}
+.search.is-open .search__panel { transform: none; opacity: 1; }
+.search.is-open .search__backdrop { animation: fadeIn .22s ease both; }
+@keyframes fadeIn { from { opacity: 0; } }
+
+.search__item { animation: itemIn .34s var(--ease-out) both; animation-delay: calc(var(--i, 0) * 32ms); }
+@keyframes itemIn { from { opacity: 0; transform: translateY(6px); } }
+
+/* 输入框聚焦时的边�?*/
+.search__field:focus-within { box-shadow: inset 0 -1px 0 rgba(var(--atmos-1), .6); }
+
+/* ── 9 门禁页：终端启动序列 ────────────────────────────────────────────── */
+.layout-gate .terminal { animation: terminalIn .5s var(--ease-out) both; }
+@keyframes terminalIn { from { opacity: 0; transform: translateY(14px) scale(.985); filter: blur(6px); } }
+
+.boot {
+    margin: 0 0 18px;
+    padding: 0;
+    font-size: .84rem;
+    color: #4f7fa8;
+    line-height: 1.9;
+    list-style: none;
+    min-height: 5.7em;
+}
+.boot li { opacity: 0; animation: bootLine .3s ease both; animation-delay: calc(var(--i, 0) * 260ms); }
+.boot li::before { content: "· "; color: #2f5a7d; }
+.boot li.is-done::after { content: "  [ OK ]"; color: #4e8f6d; }
+.boot li.is-wait::after { content: "  [ 等待密钥 ]"; color: #8a7a4e; }
+@keyframes bootLine { from { opacity: 0; transform: translateX(-6px); } to { opacity: 1; transform: none; } }
+
+/* 密钥输入的光标与聚焦呼吸 */
+.terminal__input:focus { animation: focusBreath 3.2s ease-in-out infinite; }
+@keyframes focusBreath {
+    0%, 100% { box-shadow: inset 0 0 10px #003366, 0 0 18px rgba(0, 119, 255, .55); }
+    50% { box-shadow: inset 0 0 10px #003366, 0 0 30px rgba(0, 119, 255, .85); }
+}
+
+/* ── 10 光标氛围（仅精确指针 + 桌面宽度�?──────────────────────────────── */
+.cursor-glow {
+    position: fixed;
+    left: 0; top: 0;
+    width: 340px; height: 340px;
+    margin: -170px 0 0 -170px;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0;
+    background: radial-gradient(circle, rgba(var(--atmos-1), .10), transparent 62%);
+    transition: opacity var(--dur) ease;
+    will-change: transform;
+}
+@media (hover: hover) and (pointer: fine) { .cursor-glow.is-on { opacity: 1; } }
+
+/* ── 11 404 �?─────────────────────────────────────────────────────────── */
+.notfound { margin: 0 0 26px; }
+.notfound__code {
+    margin: 0 0 12px;
+    font-family: var(--mono);
+    font-size: clamp(4rem, 12vw, 8rem);
+    line-height: .9;
+    letter-spacing: 6px;
+    background: linear-gradient(100deg, var(--control), var(--analyze));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: glitchShift 6s steps(1) infinite;
+}
+@keyframes glitchShift {
+    0%, 92%, 100% { transform: none; }
+    93% { transform: translate(-3px, 1px) skewX(2deg); }
+    95% { transform: translate(3px, -1px) skewX(-2deg); }
+    97% { transform: none; }
+}
+.notfound__line {
+    margin: 0 0 6px;
+    color: var(--text-3);
+    font-family: var(--mono);
+    font-size: .86rem;
+}
+.notfound__line span { color: var(--control); margin-right: 8px; }
+
+/* ── 12 回到顶部 & 页脚 ────────────────────────────────────────────────── */.to-top {
+    position: fixed;
+    right: 22px; bottom: 22px;
+    z-index: 30;
+    width: 42px; height: 42px;
+    display: grid; place-items: center;
+    border-radius: 50%;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    color: var(--text-2);
+    cursor: pointer;
+    opacity: 0;
+    transform: translateY(10px) scale(.94);
+    pointer-events: none;
+    transition: opacity var(--dur) ease, transform var(--dur) var(--ease-out), border-color var(--dur) ease;
+}
+.to-top.is-on { opacity: 1; transform: none; pointer-events: auto; }
+.to-top:hover { border-color: var(--control); color: var(--white); }
+
+.footer__mark { display: inline-flex; align-items: center; gap: 10px; }
+.footer__mark::before,
+.footer__mark::after {
+    content: "";
+    width: 26px; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--control));
+}
+.footer__mark::after { background: linear-gradient(90deg, var(--control), transparent); }
+
+/* 文章容器作为阅读光束的定位基�?*/
+.article { position: relative; }
+
+/* 页面离场（浏览器不支�?View Transitions 时的兜底�?*/
+html.is-leaving .topbar,
+html.is-leaving .shell,
+html.is-leaving .footer {
+    opacity: 0;
+    transform: translateY(-6px);
+    transition: opacity .16s ease, transform .16s ease;
+}
+
+/* ── 12b 碎片聚散（clip-path 多边�?morph）───────────────────────────────
+   8 块三角形拼成一块面板；�?JS 时从"散开"收拢�?整块"�?   来源：species-in-pieces.com �?-webkit-clip-path 三角碎片法，降到 8 片�?   要点：每�?polygon 都是 3 个点 —�?点数一致才有线性插值；多点或少点会跳变�?   �?JS 时没�?html.js，默认就是组装态，面板照常显示（铁�?1）�?*/
+.shards {
+    position: absolute; inset: 0; overflow: hidden;
+    pointer-events: none; border-radius: inherit;
+}
+.shards__s {
+    position: absolute; inset: 0; display: block;
+    background: linear-gradient(135deg, rgba(var(--atmos-1), var(--sa, .1)), rgba(var(--atmos-2), calc(var(--sa, .1) * .5)));
+    transition: clip-path .9s var(--ease-out) calc(var(--si, 0) * 55ms);
+}
+/* 组装态：8 块严丝合缝拼满整块面�?*/
+.shards__s:nth-child(1) { clip-path: polygon(50% 50%, 0% 0%, 50% 0%); }
+.shards__s:nth-child(2) { clip-path: polygon(50% 50%, 50% 0%, 100% 0%); }
+.shards__s:nth-child(3) { clip-path: polygon(50% 50%, 100% 0%, 100% 50%); }
+.shards__s:nth-child(4) { clip-path: polygon(50% 50%, 100% 50%, 100% 100%); }
+.shards__s:nth-child(5) { clip-path: polygon(50% 50%, 100% 100%, 50% 100%); }
+.shards__s:nth-child(6) { clip-path: polygon(50% 50%, 50% 100%, 0% 100%); }
+.shards__s:nth-child(7) { clip-path: polygon(50% 50%, 0% 100%, 0% 50%); }
+.shards__s:nth-child(8) { clip-path: polygon(50% 50%, 0% 50%, 0% 0%); }
+/* 散开态：向各自重心收缩，缝隙留在内部（越出容器会�?overflow 裁掉，所以不往外散�?*/
+html.js [data-shards]:not(.is-in) .shards__s:nth-child(1) { clip-path: polygon(43% 36%, 12% 5%, 43% 5%); }
+html.js [data-shards]:not(.is-in) .shards__s:nth-child(2) { clip-path: polygon(57.5% 34.9%, 57.5% 3.9%, 88.5% 3.9%); }
+html.js [data-shards]:not(.is-in) .shards__s:nth-child(3) { clip-path: polygon(66.2% 41.9%, 97.2% 10.9%, 97.2% 41.9%); }
+html.js [data-shards]:not(.is-in) .shards__s:nth-child(4) { clip-path: polygon(64% 57%, 95% 57%, 95% 88%); }
+html.js [data-shards]:not(.is-in) .shards__s:nth-child(5) { clip-path: polygon(57.5% 65.1%, 88.5% 96.1%, 57.5% 96.1%); }
+html.js [data-shards]:not(.is-in) .shards__s:nth-child(6) { clip-path: polygon(41.9% 66.2%, 41.9% 97.2%, 10.9% 97.2%); }
+html.js [data-shards]:not(.is-in) .shards__s:nth-child(7) { clip-path: polygon(36% 57%, 5% 88%, 5% 57%); }
+html.js [data-shards]:not(.is-in) .shards__s:nth-child(8) { clip-path: polygon(34.9% 42.5%, 3.9% 42.5%, 3.9% 11.5%); }
+/* 碎片层是绝对定位的，同级的文字要抬到它上�?*/
+.vacant > :not(.shards) { position: relative; z-index: 1; }
+
+/* ── 12c 部门：钉�?+ 编号推进 ───────────────────────────────────────────
+   宽屏 + 精确指针 + 未开启减少动效时，这一段变�?滚动换一�?�?   容器拉高，轮�?sticky 钉住，编号（01�?N）随滚动推进�?   三个条件缺一即不生效，轮播回到原来的自动播放 + 箭头 + 指示点�?   注意：媒体查询必须和 site.js 里的 matchMedia 字符串保持一致，否则会出�?   "CSS 拉高了容器但 JS 没接�?的空滚动�?*/
+.dept-seq { position: relative; }
+@media (min-width: 900px) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+    html.js .dept-seq { height: calc(var(--slides, 5) * 78vh); }
+    html.js .dept-seq .carousel { position: sticky; top: 12vh; }
+}
+
+/* ── 12d 校验页入�?───────────────────────────────────────────────────────
+   进入校验页时：海洋淡入、卡片浮起、碎片收拢（碎片�?verify.js �?is-in）�?   全部�?html.js：没 JS 时页面就是最终形态，卡片照常可读�?*/
+html.js .verify__ocean { opacity: 0; }
+html.js .verify.is-ready .verify__ocean { opacity: 1; transition: opacity 1.2s ease; }
+
+html.js .verify.is-ready .verify__card { animation: gateCardIn .9s var(--ease-out) both; }
+@keyframes gateCardIn {
+    from { opacity: 0; transform: translateY(22px) scale(.985); filter: blur(10px); }
+    to { opacity: 1; transform: none; filter: none; }
+}
+
+html.js .keycard:not([hidden]) { animation: keyIn .6s var(--ease-spring) both; }
+@keyframes keyIn {
+    from { opacity: 0; transform: translateY(12px) scale(.97); }
+    to { opacity: 1; transform: none; }
+}
+
+html.js .gate-load { transition: opacity .5s ease, visibility .5s; }
+
+/* ── 13 终局保护 ───────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+    html.js [data-reveal],
+    html.js .split .split__ch {
+        opacity: 1 !important;
+        filter: none !important;
+        transform: none !important;
+    }
+    .atmos__aurora,
+    .atmos__beam,
+    .marquee__track,
+    .grad-text,
+    .sidebar__list a.is-current::after,
+    .terminal__input:focus,
+    .layout-gate .terminal,
+    .boot li {
+        animation: none !important;
+    }
+    .atmos__beam { opacity: .3; animation: none !important; }
+    .atmos__aurora { animation: none !important; }
+    .boot li { opacity: 1 !important; }
+    .scroll-cue span { animation: none !important; opacity: .6; }
+    .hero-stat + .hero-stat { border-left-color: var(--line-soft); }
+    .layout-home .page-head { animation: none !important; opacity: 1 !important; transform: none !important; filter: none !important; }
+    html.js .hero-bars span { animation: none !important; transform: none !important; }
+    .notfound__code { animation: none !important; }
+    .shards__s { transition: none !important; }
+    .verify__ocean { opacity: 1 !important; }
+    html.js .verify.is-ready .verify__card,
+    html.js .keycard:not([hidden]) { animation: none !important; }
+    .gate-load.is-on .gate-load__bar span { animation-duration: .4s !important; }
+    html.js .gate-load { transition: none !important; }
+    .zone--signal .zone__sweep,
+    .zone--strata .zone__beamline,
+    .zone--axis .zone__axis { animation: none !important; }
+    .zone__pulse { display: none; }
+    .zone--signal .zone__grid,
+    .zone--strata .zone__strata { transform: none !important; }    .cursor-glow { display: none; }
+    .search__item, .search__panel { animation: none !important; transition: none !important; }
+    @view-transition { navigation: none; }
+}
+
+/* ── 12e 分区背景的常驻动画与点击涟漪 ───────────────────────────────────── */
+.zone--signal .zone__sweep { animation: zoneSweep 28s linear infinite; }
+@keyframes zoneSweep { to { transform: rotate(1turn); } }
+
+.zone--strata .zone__beamline { animation: zoneBeam 7s ease-in-out infinite; }
+@keyframes zoneBeam { 0%, 100% { opacity: .35; } 50% { opacity: .85; } }
+
+.zone--axis .zone__axis { animation: zoneAxis 6s ease-in-out infinite; }
+@keyframes zoneAxis { 0%, 100% { opacity: .5; } 50% { opacity: 1; } }
+
+.zone__pulse {
+    position: absolute; z-index: 0; width: 8px; height: 8px; margin: -4px 0 0 -4px;
+    border: 1px solid rgba(var(--atmos-1), .8); border-radius: 50%;
+    pointer-events: none; animation: zonePulse .9s ease-out forwards;
+}
+@keyframes zonePulse { to { transform: scale(28); opacity: 0; } }

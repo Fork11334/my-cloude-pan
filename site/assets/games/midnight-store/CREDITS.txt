@@ -1,0 +1,37 @@
+长夜便利店 · NIGHTLONG MART
+CREDITS / LICENSES
+=========================
+
+三 维 人 头 扫 描
+  3D head scan by Lee Perry-Smith (Infinite)
+  Licensed under Creative Commons Attribution 3.0 Unported (CC BY 3.0)
+  Source: three.js examples / triplegangers.com / ir-ltd.net
+  Full license text: assets/head_male_LICENSE.txt
+  Modifications: the base colour map was repainted to create open eyes and
+  several unsettling "substitute" expressions; the head geometry is clipped,
+  scaled and combined with procedural bodies in real time.
+
+  The scanned head is used with attribution under CC BY 3.0. It is not
+  presented as an original work of this project.
+
+THREE.JS
+  three.js r140 — MIT License
+  https://threejs.org
+  Includes GLTFLoader (examples/js).
+
+音 效 / 音 乐
+  All sound effects, ambience, drones and the procedural score are synthesized
+  at runtime with the Web Audio API. No third-party audio files are included.
+
+场 景 / 贴 图 / 剧 情 / UI
+  Generated procedurally in Canvas / JavaScript, or written for this project.
+  The convenience store, street, products, ID cards, posters, notes, radio
+  broadcasts and characters are fictional. Any resemblance to a real
+  convenience store, person or missing-person case is coincidental.
+
+中 文 语 音
+  Uses the browser / operating system's built-in speech synthesis (TTS).
+  No voice recordings are distributed with this project.
+
+This is a non-commercial, personal fan-sized horror short. Please do not
+sell it or redistribute the embedded head scan outside the terms of CC BY 3.0.

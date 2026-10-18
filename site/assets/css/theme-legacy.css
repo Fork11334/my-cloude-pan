@@ -1,0 +1,113 @@
+/* ==========================================================================
+   旧站配色还原（2026 年线上那套：红黑 + Trebuchet MS）
+   依据：crawl/raw/control.html 与 cac-project.html 里的内联 <style>
+        原文要点 —— 页头 2px #a00 下边框、h1 #e66、卡片 #1e1e1e/#3a3a3a/圆角10px、
+        卡片标题 #f0c0c0 配 #b33 左竖条、链接 #89a9ff（hover #ff8c8c）、
+        引用块 #2a2a2a/#444/#bbb、页脚 #444 虚线上边框、字体 Trebuchet MS。
+
+   启用方式：<html data-theme="legacy">。三色版是 data-theme="cac"。
+   页面底色旧站由 Wikidot 主题提供、没能取到（wdfiles.com 被网络拦），
+   这里按卡片 #1e1e1e 反推为 #141414。
+   ========================================================================== */
+
+html[data-theme="legacy"] {
+    --bg: #141414;
+    --bg-soft: #191919;
+    --panel: #1e1e1e;
+    --panel-2: #2a2a2a;
+    --line: #3a3a3a;
+    --line-soft: #2f2f2f;
+
+    /* 氛围层跟着配色走：红黑主题下用暗红与暖调，不要蓝紫 */
+    --atmos-1: 179, 51, 51;
+    --atmos-2: 214, 96, 96;
+    --atmos-3: 150, 90, 70;
+
+    --text: #e0e0e0;
+    --text-2: #bbbbbb;
+    --text-3: #888888;
+    --white: #f5f5f5;
+
+    --control: #b33333;
+    --analyze: #e66666;
+    --coexist: #f0c0c0;
+    --warn: #d9a441;
+    --danger: #e0555f;
+
+    --link: #89a9ff;
+    --link-visited: #b39ddb;
+
+    --radius: 10px;
+    --radius-lg: 10px;
+    --shadow: 0 3px 8px rgba(0, 0, 0, .5);
+    --sans: "Trebuchet MS", "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+}
+
+/* 旧站是纯色底，没有网格纹理与彩色光晕 */
+html[data-theme="legacy"] body { background-image: none; background-color: var(--bg); }
+
+/* 页头：2px #a00 下边框 + #e66 标题 + #aaa 副标题 */
+html[data-theme="legacy"] .page-head {
+    padding-bottom: .5em; border-bottom: 2px solid #a00; text-align: center;
+}
+html[data-theme="legacy"] .page-head h1 { color: #e66; }
+html[data-theme="legacy"] .page-head__sub { color: #aaa; }
+html[data-theme="legacy"] .crumbs { justify-content: center; }
+html[data-theme="legacy"] .chips { justify-content: center; }
+
+/* 首页大字：旧站没有等宽大标题，用同色系红字 */
+html[data-theme="legacy"] .layout-home .page-head h1 {
+    font-family: var(--sans); letter-spacing: 6px; color: #e66;
+}
+
+/* 卡片标题用柔和红，分组标题配 #b33 左竖条 */
+html[data-theme="legacy"] .card__title { color: #f0c0c0; }
+html[data-theme="legacy"] .group-block__title { border-left-color: #b33; color: #f0c0c0; }
+html[data-theme="legacy"] .prose h2 { color: #f0c0c0; }
+html[data-theme="legacy"] .prose h3 { color: #e66; }
+html[data-theme="legacy"] .sidebar__head { color: #e66; letter-spacing: 1px; font-family: var(--sans); }
+html[data-theme="legacy"] .sidebar__list a.is-current {
+    color: #f0c0c0; background: rgba(187, 51, 51, .12); border-left-color: #b33;
+}
+
+/* 引用块 */
+html[data-theme="legacy"] .prose blockquote,
+html[data-theme="legacy"] .callout { background: #2a2a2a; border-color: #444; color: #bbb; }
+html[data-theme="legacy"] .callout__title { color: #e0e0e0; }
+html[data-theme="legacy"] .prose details.spoiler { background: #2a2a2a; border-color: #444; }
+html[data-theme="legacy"] .prose details.spoiler summary { color: #e66; }
+
+/* 链接 hover 变亮红 */
+html[data-theme="legacy"] a:hover { color: #ff8c8c; }
+html[data-theme="legacy"] .prose code { background: #2a2a2a; border-color: #444; color: #f0c0c0; }
+
+/* 卡片 hover：红边 + 淡红发光（旧站 .project-card:hover / .cac-card:hover） */
+html[data-theme="legacy"] a.card:hover { border-color: #b33; box-shadow: 0 5px 12px rgba(180, 0, 0, .2); }
+html[data-theme="legacy"] .card { border-top-color: #3a3a3a; }
+html[data-theme="legacy"] a.card--control,
+html[data-theme="legacy"] a.card--analyze,
+html[data-theme="legacy"] a.card--coexist { border-top-color: #b33; }
+html[data-theme="legacy"] .cac-terminal, html[data-theme="legacy"] .terminal { border-radius: 14px; }
+
+/* 论坛帖、检索条、时间线：统一到红黑 */
+html[data-theme="legacy"] .post { background: #1e1e1e; border-color: #3a3a3a; }
+html[data-theme="legacy"] .post__author { color: #e66; }
+html[data-theme="legacy"] .timeline li::before { background: #3a3a3a; }
+html[data-theme="legacy"] .timeline li:hover::before { background: #b33; }
+html[data-theme="legacy"] .timeline li strong { color: #e66; }
+html[data-theme="legacy"] .search__bar, html[data-theme="legacy"] .cac-search__bar { background: #1e1e1e; }
+
+/* 页脚：虚线上边框 */
+html[data-theme="legacy"] .footer { border-top: 1px dashed #444; background: transparent; }
+html[data-theme="legacy"] .footer__mark { color: #e66; font-family: var(--sans); letter-spacing: 2px; }
+
+/* 顶栏：旧站没有顶栏，保持克制 */
+html[data-theme="legacy"] .topbar { background: rgba(20, 20, 20, .92); border-bottom-color: #2f2f2f; }
+html[data-theme="legacy"] .nav a.is-current {
+    color: #e66; border-color: rgba(187, 51, 51, .55); background: rgba(187, 51, 51, .08);
+}
+html[data-theme="legacy"] .brand__mark { letter-spacing: 2px; }
+
+/* 侧栏分组里的角标（待补充）在红黑主题下也用暖色 */
+html[data-theme="legacy"] .sidebar__badge,
+html[data-theme="legacy"] .card__badge { border-color: rgba(217, 164, 65, .45); color: #d9a441; }

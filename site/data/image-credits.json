@@ -1,0 +1,122 @@
+{
+  "news-aurora": {
+    "file": "site/assets/img/news-aurora.jpg",
+    "note": "极光",
+    "title": "The aurora borealis blankets the Earth",
+    "nasaId": "iss072e159172",
+    "source": "https://images.nasa.gov/details/iss072e159172",
+    "license": "NASA 图片，公有领域（NASA Image and Video Library）",
+    "size": "medium",
+    "bytes": 65810
+  },
+  "news-citylights": {
+    "file": "site/assets/img/news-citylights.jpg",
+    "note": "城市夜景卫星图",
+    "title": "iss067e302248",
+    "nasaId": "iss067e302248",
+    "source": "https://images.nasa.gov/details/iss067e302248",
+    "license": "NASA 图片，公有领域（NASA Image and Video Library）",
+    "size": "medium",
+    "bytes": 107322
+  },
+  "news-volcano": {
+    "file": "site/assets/img/news-volcano.jpg",
+    "note": "火山喷发",
+    "title": "Aleutian volcanic eruption taken by Expedition 13 crewmember",
+    "nasaId": "iss013e24184",
+    "source": "https://images.nasa.gov/details/iss013e24184",
+    "license": "NASA 图片，公有领域（NASA Image and Video Library）",
+    "size": "medium",
+    "bytes": 86880
+  },
+  "forum-signal": {
+    "file": "site/assets/img/forum-signal.jpg",
+    "note": "控制室",
+    "title": "A view inside the Science Evaluation Room (SER) in Mission Control -- jsc2026e019925",
+    "nasaId": "jsc2026e019925",
+    "source": "https://images.nasa.gov/details/jsc2026e019925",
+    "license": "NASA 图片，公有领域（NASA Image and Video Library）",
+    "size": "small",
+    "bytes": 44500
+  },
+  "forum-orbital": {
+    "file": "site/assets/img/forum-orbital.jpg",
+    "note": "舱外活动",
+    "title": "Astronaut Suni Williams during a spacewalk outside the International Space Station",
+    "nasaId": "iss072e487421",
+    "source": "https://images.nasa.gov/details/iss072e487421",
+    "license": "NASA 图片，公有领域（NASA Image and Video Library）",
+    "size": "small",
+    "bytes": 49694
+  },
+  "forum-deepfield": {
+    "file": "site/assets/img/forum-deepfield.jpg",
+    "note": "深空星系",
+    "title": "Hubble Deep Field Image Unveils Myriad Galaxies Back to the Beginning of Time",
+    "nasaId": "PIA12110",
+    "source": "https://images.nasa.gov/details/PIA12110",
+    "license": "NASA 图片，公有领域（NASA Image and Video Library）",
+    "size": "small",
+    "bytes": 89565
+  },
+  "forum-earthview": {
+    "file": "site/assets/img/forum-earthview.jpg",
+    "note": "地出",
+    "title": "NASA Google+ Hangout: 'Earthrise' A New Visualization - 45th Anniversary of Apollo 8 Viewing Earth from Space",
+    "nasaId": "GSFC_20171208_Archive_e001282",
+    "source": "https://images.nasa.gov/details/GSFC_20171208_Archive_e001282",
+    "license": "NASA 图片，公有领域（NASA Image and Video Library）",
+    "size": "small",
+    "bytes": 19555
+  },
+  "file-nebula": {
+    "file": "site/assets/img/file-nebula.jpg",
+    "note": "行星状星云",
+    "title": "Planetary Nebula",
+    "nasaId": "GSFC_20171208_Archive_e001465",
+    "source": "https://images.nasa.gov/details/GSFC_20171208_Archive_e001465",
+    "license": "NASA 图片，公有领域（NASA Image and Video Library）",
+    "size": "small",
+    "bytes": 20429
+  },
+  "file-mars": {
+    "file": "site/assets/img/file-mars.jpg",
+    "note": "火星地表",
+    "title": "360-degree b/w Monster",
+    "nasaId": "PIA00662",
+    "source": "https://images.nasa.gov/details/PIA00662",
+    "license": "NASA 图片，公有领域（NASA Image and Video Library）",
+    "size": "small",
+    "bytes": 18951
+  },
+  "file-moon": {
+    "file": "site/assets/img/file-moon.jpg",
+    "note": "月面",
+    "title": "Photograph of nearly full moon taken from Apollo 8",
+    "nasaId": "as08-14-2506",
+    "source": "https://images.nasa.gov/details/as08-14-2506",
+    "license": "NASA 图片，公有领域（NASA Image and Video Library）",
+    "size": "small",
+    "bytes": 33514
+  },
+  "file-ocean": {
+    "file": "site/assets/img/file-ocean.jpg",
+    "note": "飓风眼",
+    "title": "Crew Earth Observations (CEO) by Expedition Five Crew",
+    "nasaId": "iss005e15375",
+    "source": "https://images.nasa.gov/details/iss005e15375",
+    "license": "NASA 图片，公有领域（NASA Image and Video Library）",
+    "size": "small",
+    "bytes": 17070
+  },
+  "bg-hero": {
+    "file": "site/assets/img/bg-hero.jpg",
+    "note": "首屏背景",
+    "title": "An orbital sunrise colorfully illuminates the Earth's atmosphere",
+    "nasaId": "iss071e439624",
+    "source": "https://images.nasa.gov/details/iss071e439624",
+    "license": "NASA 图片，公有领域（NASA Image and Video Library）",
+    "size": "medium",
+    "bytes": 30842
+  }
+}
