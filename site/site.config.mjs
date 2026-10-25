@@ -23,6 +23,7 @@ export const site = {
     menu: [
         { label: '主界面', href: '/' },
         { label: '档案部', href: '/archive/' },
+        { label: '论坛', href: '/forum/' },
         { label: '访问校验', href: '/verify/' },
         { label: '站内检索', action: 'search' },
     ],

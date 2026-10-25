@@ -248,7 +248,7 @@ function createRenderer(options = {}) {
             danger: () => `<aside class="callout callout--danger">${attrs.title ? `<p class="callout__title">${escapeHtml(attrs.title)}</p>` : ''}${inner}</aside>`,
             grid: () => `<div class="card-grid${attrs.cols ? ` card-grid--${escapeHtml(attrs.cols)}` : ''}">${inner}</div>`,
             card: () => `<div class="card${attrs.accent ? ` card--${escapeHtml(attrs.accent)}` : ''}">${attrs.title ? `<p class="card__title">${escapeHtml(attrs.title)}</p>` : ''}${inner}</div>`,
-            entry: () => `<a class="card${attrs.accent ? ` card--${escapeHtml(attrs.accent)}` : ''}" href="${escapeHtml(attrs.href || '#')}">
+            entry: () => `<a class="card${attrs.accent ? ` card--${escapeHtml(attrs.accent)}` : ''}" href="${escapeHtml(cleanUrl(attrs.href || '#') || '#')}">
                 <p class="card__title">${escapeHtml(attrs.title || '')}${attrs.badge ? `<span class="card__badge">${escapeHtml(attrs.badge)}</span>` : ''}</p>
                 ${attrs.desc ? `<p class="card__desc">${escapeHtml(attrs.desc)}</p>` : ''}
                 ${attrs.meta ? `<p class="card__meta">${escapeHtml(attrs.meta)}</p>` : ''}

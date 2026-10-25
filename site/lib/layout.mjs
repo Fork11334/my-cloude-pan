@@ -2,6 +2,27 @@
 
 import { esc, u, fmtDate, pad2 } from './html.mjs';
 import { archiveMarkup, ARCHIVE_LAYOUTS } from './layout-archive.mjs';
+import { renderGamePage } from './layout-game.mjs';
+
+/* 访问校验脚本：任何页面头里都可以插一次。
+   抽成导出函数，是因为游戏页（layout-game.mjs）用自己的 <head>，
+   但门禁逻辑必须和这里完全一致，不能各写一份。 */
+export function guardScript(site, page) {
+    const guarded = site.gating.enabled
+        && (site.gating.guardAll || page.locked)
+        && !page.route.startsWith(site.gating.route)
+        && page.route !== '/404/';
+    if (!guarded) { return ''; }
+    return `<script>
+try {
+  var ok = sessionStorage.getItem(${JSON.stringify(site.gating.store || 'cac-pass')}) === '1'
+        || !!localStorage.getItem(${JSON.stringify(site.gating.accountStore || 'cac-session')});
+  if (!ok) {
+    location.replace(${JSON.stringify(u(site, site.gating.route))} + '?next=' + encodeURIComponent(location.pathname + location.search));
+  }
+} catch (e) { /* 隐私模式下直接放行，避免白屏 */ }
+</script>`;
+}
 
 function head({ site, page, extraCss = '' }) {
     const title = page.route === '/' ? `${site.name} · ${site.tagline}` : `${page.title} · ${site.name}`;
@@ -11,22 +32,7 @@ function head({ site, page, extraCss = '' }) {
     const css = u(site, '/assets/css/main.css');
 
     /* 访问校验：除校验页之外，没有访客标记或账号会话就送回 /verify/ */
-    const guarded = site.gating.enabled
-        && (site.gating.guardAll || page.locked)
-        /* 校验页与它下面的子页（注册页）都不该被拦，否则会自我重定向 */
-        && !page.route.startsWith(site.gating.route)
-        && page.route !== '/404/';
-    const guard = guarded
-        ? `<script>
-try {
-  var ok = sessionStorage.getItem(${JSON.stringify(site.gating.store || 'cac-pass')}) === '1'
-        || !!localStorage.getItem(${JSON.stringify(site.gating.accountStore || 'cac-session')});
-  if (!ok) {
-    location.replace(${JSON.stringify(u(site, site.gating.route))} + '?next=' + encodeURIComponent(location.pathname + location.search));
-  }
-} catch (e) { /* 隐私模式下直接放行，避免白屏 */ }
-</script>`
-        : '';
+    const guard = guardScript(site, page);
 
     return `<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -602,8 +608,8 @@ ${body}
                 <span class="sec__rule" data-reveal="line" aria-hidden="true"></span>
             </header>
             <ul class="forum-list" data-reveal="fade">
-                <li><a href="${u(site, '/forum/signal-log/')}">夜班第七天，茶水间的灯又自己亮了</a><span>生活信道</span></li>
-                <li><a href="${u(site, '/forum/handover/')}">交接单上不该出现的那一行</a><span>作业频道</span></li>
+                <li><a href="${u(site, '/forum/night-shift/')}">午夜轮班 · 夜班记录</a><span>游戏板块</span></li>
+                <li><a href="${u(site, '/forum/t-nightlong/')}">长夜便利店 · NIGHTLONG MART</a><span>可玩</span></li>
                 <li><a href="${u(site, '/forum/')}">内部论坛 · 频道存档</a><span>入口</span></li>
             </ul>
         </section>
@@ -660,6 +666,11 @@ function newsBlocks({ site, page, home, body }) {
 export function renderPage(ctx) {
     const { site, page, body, sidebar: sb, toc, pager: pg, sectionCards: cards, home, data } = ctx;
     const themeAttr = site.appearance?.defaultTheme || 'cac';
+
+    /* 游戏页：独立外壳（全屏画布），自己的 head 与样式 */
+    if (page.layout === 'game') {
+        return renderGamePage({ site, page });
+    }
 
     /* 访问校验页：独立外壳，不带顶栏与底栏 */
     if (page.layout === 'verify') {
