@@ -12,3 +12,4 @@ import './key.test.mjs';
 import './accounts.test.mjs';
 import './build.test.mjs';
 import './archive.test.mjs';
+import './game.test.mjs';
