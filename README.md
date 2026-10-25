@@ -3,7 +3,7 @@
 一个**零依赖**的静态站点：没有框架、没有 npm 包、没有构建依赖，`node site/build.mjs` 就能出站。
 内容为虚构创作，与任何现实机构、事件或人物无关。
 
-站点目前有**三大块、十五个页面**：
+站点目前有**四大块、二十二个页面**：
 
 | 页面 | 路径 | 作用 |
 | --- | --- | --- |
@@ -17,6 +17,9 @@
 | 研究论文 | `/archive/papers/` | 按作者、专业检索 |
 | 行动记录 | `/archive/operations/` | 控制部行动，按时间倒序 |
 | 评估报告 | `/archive/evaluations/` | 共存部评估，按时间倒序 |
+| 论坛 | `/forum/` | 频道、存档与两个可玩版块的入口 |
+| 午夜轮班 · 板块 | `/forum/night-shift/` | 游戏板块：置顶卡片直通游戏页，另有两帖 |
+| 午夜轮班 · 游戏页 | `/forum/night-shift/play/` | WASM 小游戏本体（全屏画布，`layout: game`） |
 
 设施详情页（`/archive/facilities/<slug>/`，共 6 个）由 `site/data/archive.json` 在构建时生成，不另外写 Markdown。
 
@@ -108,6 +111,26 @@ node tools/check-content.mjs   # 内容自检
 - `home.json` — 档案面板与精品卡（`archives`）、论坛话题（`forum`）、服务清单（`services`）、声明条文（`rules`）。
 - `image-credits.json` — 配图出处。
 
+## 论坛板块：午夜轮班（WebAssembly）
+
+`/forum/night-shift/⟫T⟫ 是论坛里的游戏板块，置顶卡片点进 `/forum/night-shift/play/⟫T⟫：一间便利店，五分钟一个班次，从 00:00 守到 06:00。
+
+| 层 | 文件 | 说明 |
+| --- | --- | --- |
+| 规则 | `assets/games/shift-at-midnight/src/shift.ts⟫T⟫ → `shift.wasm⟫T⟫ | AssemblyScript 编译，约 5 KB；时间、来客、判定、结算全在这一层，零宿主依赖 |
+| 画面 | `js/art.js⟫T⟫ | 480×300 逻辑坐标的 Canvas 手绘；静态层缓存到离屏画布，没有贴图与音频文件 |
+| 文案 | `js/text.js⟫T⟫ | 中文全在前端；WASM 只给数字 |
+| 控制 | `js/game.js⟫T⟫ | 载入 wasm、每帧推进、写 DOM、键位 1–4 与按钮、WebAudio 现场合成音效 |
+| 外壳 | `site/lib/layout-game.mjs⟫T⟫ | `layout: game⟫T⟫ 的独立页：不挂顶栏与 `main.css⟫T⟫，门禁复用 `guardScript()⟫T⟫ |
+
+~~~bash
+npm run build:wasm   # 改完 shift.ts 重新编译；产物已提交，部署时不需要编译器
+~~~
+
+构建期依赖只有 `assemblyscript⟫T⟫（devDependencies），站点产物仍然一个依赖都不带。字段表、数值与替换方式见[游戏目录的 README](site/assets/games/shift-at-midnight/README.md)。
+
+**为什么不是原游戏**：工作副本里那份 `Shift At Midnight Demo⟫T⟫ 是 Windows/IL2CPP 构建，没有 WebGL 目标；可执行文件不能直接变成网页，Unity 只能从工程重新导出 WebGL。所以这一版按同一题材重写，没有使用原游戏的任何素材。以后拿到 WebGL 构建，替换步骤写在游戏目录的 README 里。
+
 ## 恢复下架的页面
 
 ```bash
@@ -126,9 +149,10 @@ Copy-Item _local\archive-content\control site\content\ -Recurse
 
 ```
 site/
-  content/            只有 index.md（主页面）与 404.md（兜底页）
+  content/            首页、404、校验页、档案部、论坛与午夜轮班板块
   data/               notices.json / home.json / image-credits.json
   assets/img/         配图（首屏背景、论坛封面、档案封面，合计约 570 KB）
+  content/forum/night-shift/  游戏板块：板块页、游戏页、值班手册、夜班记录
   lib/content.mjs     读内容、解析 front-matter、渲染正文（纯函数为主，可直接测）
   lib/derive.mjs      由页面集合派生侧栏/卡片/分页/索引/sitemap（纯函数）
   lib/html.mjs        模板共用工具：转义、部署前缀、日期格式
@@ -136,6 +160,8 @@ site/
   data/archive.json   档案部全部数据：设施、装备、项目、论文、行动、评估
   lib/markdown.mjs    自写的 Markdown 渲染器（含 ::: 容器语法）
   lib/layout.mjs      页面模板（顶栏、主页面各板块、校验页、侧栏、目录、分页、页脚、检索浮层）
+  lib/layout-game.mjs 游戏页外壳（`layout: game`）：全屏画布，不挂顶栏与 main.css
+  assets/games/shift-at-midnight/  WASM 游戏：src/shift.ts、shift.wasm、js/、css/
   assets/css/         main.css（结构 + 三色）+ theme-legacy.css（红黑还原）+ motion.css（动效层）
   assets/js/          site.js（菜单 / 检索 / 轮播 / 配色切换）、verify.js（校验页流程）、
                       key.js（密钥格式）、accounts.js（账号与校验语义）、ocean.js（粒子海洋）、
@@ -149,7 +175,7 @@ tools/
   crawl.mjs           从前身站点抓取整站（迁移用，可选）
   extract-content.mjs 把抓下来的正文转成 Markdown（只在做迁移时用）
   check-content.mjs   内容自检
-test/                 测试入口 all.mjs + 四个 *.test.mjs（node:test，零依赖）
+test/                 测试入口 all.mjs + 八个 *.test.mjs（node:test，零依赖）
 docs/                 迁移记录、动效拆解、设计参考（含 _raw/ 原始证据）
 dist/                 构建产物（.gitignore 里）
 _local/               本地素材，不进仓库：归档内容、截图、取图脚本、爬取结果
@@ -188,6 +214,11 @@ locked: true               # 可选，需要先通过访问校验
 ```bash
 CAC_BASE=/仓库名 CAC_SITE_URL=https://用户名.github.io/仓库名 node site/build.mjs
 ```
+
+两条与游戏页有关的部署常识：
+
+- 产物里有一个 `assets/games/shift-at-midnight/shift.wasm⟫T⟫（约 5 KB）。GitHub Pages 会以 `application/wasm⟫T⟫ 提供它，不需要额外配置；本地用 `node site/serve.mjs⟫T⟫ 时也已经登记了这个 MIME。
+- GitHub Pages 对**单个文件**有 100 MB 上限。WASM 版远在这个线以下；如果要换成 Unity 的 WebGL 构建，`.data⟫T⟫ 常常超过 100 MB，得拆分或放到外部存储。
 
 ## 动效层
 
@@ -237,7 +268,7 @@ CAC_BASE=/仓库名 CAC_SITE_URL=https://用户名.github.io/仓库名 node site
 | 窄屏 | 390px iframe 内测 `scrollWidth` | 等于视口宽，无横向溢出 |
 | 首屏 | 1440×900 与 1200×700 下量三列底部 | y=695，两种窗口都在首屏内 |
 | 内容自检 | `node tools/check-content.mjs` | 3 个 Markdown 文件，无提示词残留 |
-| 测试 | `node test/all.mjs` | 57 项全绿：Markdown 8、内容层 5、派生层 7、密钥 6、账号语义 9、构建集成 12、档案部 10 |
+| 测试 | `node test/all.mjs` | 68 项全绿：Markdown 8、内容层 5、派生层 7、密钥 6、账号语义 9、构建集成 12、档案部 10、WASM 与游戏页 9 |
 
 ### 三个踩过的坑（写在这里免得再犯）
 
